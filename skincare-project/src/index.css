@@ -1,1 +1,8 @@
 @import "tailwindcss";
+@font-face {
+  font-family: 'Roobert TRIAL';
+  src: url('./assets/fonts/RoobertTRIAL.woff2') format('woff2'),
+       url('./assets/fonts/RoobertTRIAL.woff') format('woff');
+  font-weight: 300; /* Adjust if needed */
+  font-style: normal;
+}

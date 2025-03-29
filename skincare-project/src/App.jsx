@@ -2,9 +2,12 @@ import React from 'react'
 
 function App() {
   return (
-    <header className="text-3xl text-center text-blue-500 font-bold">
-    Sophisticated Skincare
-    </header>
+    <div className='flex items-center justify-center h-screen'>
+    <h1 className="text-center font-roobert-trial font-light text-[128px] leading-[120px] tracking-[-0.07em]">
+    Sophisticated 
+    <span className='block'>Skincare</span>
+    </h1>
+    </div>
   )
 }
 
