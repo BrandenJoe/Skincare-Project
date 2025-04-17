@@ -6,3 +6,22 @@
   font-weight: 300; /* Adjust if needed */
   font-style: normal;
 }
+html, body{
+  overflow: hidden;
+  height: 100%;
+}
+
+button:focus {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+@keyframes pulse {
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.animate-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
