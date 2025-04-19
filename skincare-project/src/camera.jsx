@@ -1,100 +1,94 @@
-import React, { useRef, useCallback, useState } from "react";
+import React, { useRef, useState, useCallback, useEffect } from "react";
+import { useNavigate } from "react-router-dom"; // Import useNavigate
 import Webcam from "react-webcam";
-import { useNavigate, Link } from "react-router-dom";
+import takephoto from "./assets/takephoto.png"; // Import the takephoto image
 
-const WebcamCapture = ({ onCapture }) => {
+const CustomWebcam = () => {
   const webcamRef = useRef(null);
-  const [cameraAccess, setCameraAccess] = useState(false);
-  const [error, setError] = useState("");
-  const navigate = useNavigate();
+  const [imgSrc, setImgSrc] = useState(null);
+  const [loading, setLoading] = useState(true); // Loading state
+  const navigate = useNavigate(); // Initialize navigate
 
-  const handleAllowCamera = async () => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-      console.log("Camera stream:", stream); // Debugging log
-      setCameraAccess(true);
-      setError("");
-    } catch (err) {
-      setError("Camera access denied or unavailable.");
-      console.error(err);
-    }
-  };
-
-  const handleDenyCamera = () => {
-    setCameraAccess(false);
-    setError("Camera access has been stopped.");
-  };
-
+  // Capture function
   const capture = useCallback(() => {
-    if (cameraAccess) {
-      if (webcamRef.current) {
-        const imageSrc = webcamRef.current.getScreenshot();
+    if (webcamRef.current) {
+      const imageSrc = webcamRef.current.getScreenshot();
+      if (imageSrc) {
         console.log("Captured Image:", imageSrc); // Debugging log
-        navigate("/photo", { state: { imageSrc } }); // Navigate to the photo page with the captured image
-        if (typeof onCapture === "function") {
-          onCapture(imageSrc);
-        }
+        setImgSrc(imageSrc);
+        navigate("/photo", { state: { imgSrc: imageSrc } }); // Navigate to photo.jsx with image
       } else {
-        console.error("webcamRef is null or undefined.");
+        console.error("Failed to capture image");
+        alert("Failed to capture image. Please try again.");
       }
     } else {
-      console.error("Camera access is not allowed.");
+      console.error("Webcam reference is null");
+      alert("Webcam is not initialized. Please refresh the page.");
     }
-  }, [cameraAccess, onCapture]);
+  }, [webcamRef, navigate]);
+
+  // Simulate loading for the webcam
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setLoading(false); // Set loading to false after 2 seconds
+    }, 2000);
+    return () => clearTimeout(timer); // Cleanup timer
+  }, []);
 
   return (
-    <div className="min-h-screen flex flex-col justify-center items-center bg-white">
-      <div className="text-center">
-        <h1 className="text-2x1 font-semibold">Allow Camera Access</h1>
-        <p className="mt-4 text-sm">Please allow camera to scan your face</p>
-        <div className="flex gap-4 mt-6 justify-center">
-          <button
-            className="px-4 py-2 bg-blue-500 text-white rounded-md cursor-pointer"
-            onClick={handleAllowCamera}
-          >
-            Allow
-          </button>
-          <button
-            className="px-4 py-2 bg-gray-500 text-white rounded-md cursor-pointer"
-            onClick={handleDenyCamera}
-          >
-            Deny
-          </button>
-        </div>
-        {cameraAccess && (
-          <p className="mt-4 text-green-500">Camera access granted!</p>
-        )}
-        {error && <p className="mt-4 text-red-500">{error}</p>}
-      </div>
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100 relative">
+      <h1 className="text-2xl font-bold mb-4">Skincare</h1>
 
-      {/* Webcam Display */}
-      {cameraAccess && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black">
-          <Webcam
-            audio={false}
-            ref={webcamRef}
-            screenshotFormat="image/jpeg"
-            className="w-full h-full object-cover"
-          />
-          <button
-            onClick={capture}
-            className="absolute bottom-40 px-4 py-2 bg-blue-500 text-white rounded-md cursor-pointer"
-          >
-            Capture photo
-          </button>
-          <p className="absolute bottom-20 px-4 py-2 text-white">
-            To get better results make sure to have
-          </p>
-          <div className="absolute bottom-10 flex justify-center w-full px-8 text-white uppercase space-x-10">
-            <p>Neutral Expression</p>
-            <p>Frontal Pose</p>
-            <p>Adequate Lighting</p>
-          </div>
+      {/* Loading Indicator */}
+      {loading ? (
+        <div className="flex items-center justify-center h-full">
+          <p className="text-black text-lg">Loading camera...</p>
         </div>
+      ) : (
+        <>
+          {/* Webcam or Image Preview */}
+          {!imgSrc ? (
+            <div className="w-full h-full fixed top-0 left-0 flex items-center justify-center bg-black">
+              <Webcam
+                audio={false}
+                ref={webcamRef} // Attach the ref here
+                mirrored={false}
+                screenshotFormat="image/jpeg"
+                screenshotQuality={0.8}
+                className="w-full h-full object-cover"
+              />
+            </div>
+          ) : (
+            <img
+              src={imgSrc}
+              alt="Captured"
+              className="w-full h-full object-cover fixed top-0 left-0"
+            />
+          )}
+
+          {/* Capture Photo Button */}
+          {!imgSrc && (
+            <div className="absolute top-1/2 right-8 transform -translate-y-1/2 flex items-center gap-2 z-20">
+              <img
+                src={takephoto}
+                alt="Take Photo"
+                onClick={capture}
+                className="w-16 h-16 cursor-pointer pointer-events-auto"
+              />
+              <span className="text-white text-sm font-medium">Take Picture</span>
+            </div>
+          )}
+
+          {/* Instructions */}
+          <p className="absolute bottom-16 text-white mb-6 text-center z-10">
+            To get better results, make sure to have:
+            <br />
+            Neutral Expression • Frontal Pose • Adequate Lighting
+          </p>
+        </>
       )}
     </div>
-   
   );
 };
 
-export default WebcamCapture;
+export default CustomWebcam;
