@@ -4,28 +4,67 @@ import { Link } from "react-router-dom";
 import polygon from "./assets/Polygon.png";
 
 function Introduce() {
-  const questions = [
-    "Introduce Yourself",
-    "Where are you from?",
-    "Where do you live",
-  ];
-
+  const questions = ["Introduce Yourself", "Where are you from?" ,"Where do you live?"];
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [inputValue, setInputValue] = useState("");
-  const [isComplete, setisComplete] = useState(false); // Track if all questions are answered
+  const [isComplete, setIsComplete] = useState(false);
+  const [formData, setFormData] = useState({ name: "", location: "" });
+  const [error, setError] = useState("");
 
   const handleInputChange = (e) => {
     setInputValue(e.target.value);
+    setError(""); // Clear error on input change
+  };
+
+  const validateInput = (value) => {
+    // Ensure input is a string and does not contain numbers
+    const regex = /^[a-zA-Z\s]+$/;
+    return regex.test(value);
   };
 
   const handleKeyPress = (e) => {
     if (e.key === "Enter" && inputValue.trim() !== "") {
+      if (!validateInput(inputValue)) {
+        setError("Please enter a valid value (letters only).");
+        return;
+      }
+
+      // Update formData based on the current question
+      if (currentQuestionIndex === 0) {
+        setFormData({ ...formData, name: inputValue.trim() });
+      } else if (currentQuestionIndex === 1) {
+        setFormData({ ...formData, location: inputValue.trim() });
+      }
+
       setInputValue(""); // Clear the input field
+
       if (currentQuestionIndex < questions.length - 1) {
         setCurrentQuestionIndex(currentQuestionIndex + 1); // Move to the next question
       } else {
-        setisComplete(true); // Handle completion
+        setIsComplete(true); // Mark as complete
+        localStorage.setItem("userData", JSON.stringify(formData)); // Save to local storage
+        sendDataToAPI(formData); // Send data to the API
       }
+    }
+  };
+
+  const sendDataToAPI = async (data) => {
+    try {
+      const response = await fetch(
+        "https://us-central1-frontend-simplified.cloudfunctions.net/skinstricPhaseOne",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(data),
+        }
+      );
+
+      const result = await response.json();
+      console.log(result); // Log the API response
+    } catch (error) {
+      console.error("Error sending data to API:", error);
     }
   };
 
@@ -51,6 +90,9 @@ function Introduce() {
               onChange={handleInputChange}
               onKeyPress={handleKeyPress}
             />
+            {error && (
+              <p className="text-red-500 text-xs mt-2">{error}</p>
+            )}
           </>
         ) : (
           <>
@@ -97,4 +139,5 @@ function Introduce() {
     </div>
   );
 }
+
 export default Introduce;
