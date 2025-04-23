@@ -7,6 +7,7 @@ import Introduce from "./introduce.jsx";
 import Photo from "./photo.jsx"; // Import the Photo component
 import Camera from "./camera.jsx"; // Import the Camera component
 import Demographics from "./demographics.jsx"; // Import the Demographics component
+import Final from "./final.jsx";
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
@@ -17,6 +18,7 @@ createRoot(document.getElementById("root")).render(
         <Route path="/" element={<App />} />
         <Route path="/introduce" element={<Introduce />} />
         <Route path="/demographics" element={<Demographics />} />
+        <Route path="/final" element={<Final />} />
       </Routes>
     </Router>
   </StrictMode>
