@@ -2,14 +2,17 @@ import React, { useState } from "react";
 import Nav from "./nav.jsx";
 import { Link } from "react-router-dom";
 import polygon from "./assets/Polygon.png";
+import axios from "axios";
 
 function Introduce() {
-  const questions = ["Introduce Yourself", "Where are you from?" ,"Where do you live?"];
+  const questions = ["Introduce Yourself", "Where are you from?", "Where do you live?"];
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [inputValue, setInputValue] = useState("");
   const [isComplete, setIsComplete] = useState(false);
   const [formData, setFormData] = useState({ name: "", location: "" });
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false); // Track loading state
+  const [apiResponse, setApiResponse] = useState(null); // Store API response
 
   const handleInputChange = (e) => {
     setInputValue(e.target.value);
@@ -41,30 +44,25 @@ function Introduce() {
       if (currentQuestionIndex < questions.length - 1) {
         setCurrentQuestionIndex(currentQuestionIndex + 1); // Move to the next question
       } else {
-        setIsComplete(true); // Mark as complete
-        localStorage.setItem("userData", JSON.stringify(formData)); // Save to local storage
+        setIsComplete(true); // Mark as complete  
         sendDataToAPI(formData); // Send data to the API
       }
     }
   };
 
   const sendDataToAPI = async (data) => {
+    setLoading(true); // Start loading
     try {
-      const response = await fetch(
+      const response = await axios.post(
         "https://us-central1-frontend-simplified.cloudfunctions.net/skinstricPhaseOne",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(data),
-        }
+        data
       );
-
-      const result = await response.json();
-      console.log(result); // Log the API response
+      setApiResponse(response.data); // Store API response
+      console.log("Data stored:", response.data);
     } catch (error) {
-      console.error("Error sending data to API:", error);
+      console.error("Error storing data:", error);
+    } finally {
+      setLoading(false); // Stop loading
     }
   };
 
@@ -97,26 +95,32 @@ function Introduce() {
         ) : (
           <>
             {/* Display the final message */}
-            <p className="text-2xl font-semibold text-center text-black">
-              Thank you for submitting!
-            </p>
-            <p className="text-lg text-center text-gray-600 mt-2">
-              Ready for the result? Process for the next Step.
-            </p>
-            <Link
-              to="/photo"
-              className="flex items-center fixed bottom-8 right-8 gap-2 text-black hover:text-gray-700 transition-colors"
-            >
-              <div className="w-[30px] h-[30px] border border-solid border-black rotate-45 flex items-center justify-center">
-                <img
-                  src={polygon}
-                  alt="Triangle"
-                  className="w-[9.43px] h-[10.89px] rotate-[315deg]"
-                />
-              </div>
+            {loading ? (
+              <p className="text-lg text-center text-gray-600">Submitting...</p>
+            ) : (
+              <>
+                <p className="text-2xl font-semibold text-center text-black">
+                  {apiResponse ? apiResponse.SUCCUSS : "Thank you for submitting!"}
+                </p>
+                <p className="text-lg text-center text-gray-600 mt-2">
+                  Ready for the result? Process for the next Step.
+                </p>
+                <Link
+                  to="/photo"
+                  className="flex items-center fixed bottom-8 right-8 gap-2 text-black hover:text-gray-700 transition-colors"
+                >
+                  <div className="w-[30px] h-[30px] border border-solid border-black rotate-45 flex items-center justify-center">
+                    <img
+                      src={polygon}
+                      alt="Triangle"
+                      className="w-[9.43px] h-[10.89px] rotate-[315deg]"
+                    />
+                  </div>
 
-              <span className="text-sm font-medium">Proceed</span>
-            </Link>
+                  <span className="text-sm font-medium">Proceed</span>
+                </Link>
+              </>
+            )}
           </>
         )}
       </div>
