@@ -75,7 +75,7 @@ const CustomWebcam = () => {
                 onClick={capture}
                 className="w-16 h-16 cursor-pointer pointer-events-auto"
               />
-              <span className="text-white text-sm font-medium">Take Picture</span>
+              <span className="text-white text-sm font-medium">Take Picture </span>
             </div>
           )}
 
