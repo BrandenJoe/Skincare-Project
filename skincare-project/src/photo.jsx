@@ -9,6 +9,8 @@ function Photo() {
   const location = useLocation();
   const { imgSrc } = location.state || {}; // Retrieve imgSrc from state
 
+  console.log("Image Source:", imgSrc);
+
   return (
     <div className="relative w-full h-screen bg-white">
       <Nav showEnterCode={false} />
@@ -61,18 +63,18 @@ function Photo() {
       </div>
 
       {/* Preview of Captured Image */}
-      <div className="relative w-full h-screen bg-white">
-      <h1 className="text-2xl font-bold mb-4">Captured Photo</h1>
-      {imgSrc ? (
-        <img
-          src={imgSrc}
-          alt="Captured"
-          className="w-[600px] h-[450px] object-cover border border-gray-300 rounded-md"
-        />
-      ) : (
-        <p className="text-red-500">No photo available</p>
-      )}
-    </div>
+      <div className="absolute bottom-24 right-16 bg-white border border-gray-300 rounded-md shadow-md p-4">
+        <h2 className="text-lg font-semibold mb-2">Preview</h2>
+        {imgSrc ? (
+          <img
+            src={imgSrc}
+            alt="Captured"
+            className="w-40 h-40 object-cover border border-gray-300 rounded-md"
+          />
+        ) : (
+          <p className="text-gray-500 text-sm">No photo available</p>
+        )}
+      </div>
 
       {/* Navigation Links */}
       <Link
